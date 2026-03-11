@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-service-template-pro
+  namespace: go-service-template-pro
+spec:
+  selector:
+    app: go-service-template-pro
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP

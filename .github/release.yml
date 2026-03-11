@@ -1,0 +1,17 @@
+changelog:
+  exclude:
+    labels:
+      - skip-changelog
+  categories:
+    - title: API and Core
+      labels:
+        - area:api
+    - title: Operations Control Panel
+      labels:
+        - area:ops-panel
+    - title: Telemetry and Reliability
+      labels:
+        - area:telemetry
+    - title: Infrastructure and CI
+      labels:
+        - area:infra
