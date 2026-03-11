@@ -10,7 +10,7 @@ func TestLivenessEndpoint(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/health/live", nil)
 	rr := httptest.NewRecorder()
 
-	newMux().ServeHTTP(rr, req)
+	newMux(nil).ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusOK {
 		t.Fatalf("expected 200, got %d", rr.Code)
