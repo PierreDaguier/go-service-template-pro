@@ -1,17 +1,30 @@
-changelog:
-  exclude:
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+
+change-template: '- $TITLE (#$NUMBER) @$AUTHOR'
+no-changes-template: '- No changes'
+
+# Required by release-drafter v6 schema
+template: |
+  ## What's Changed
+  $CHANGES
+
+  ## Contributors
+  $CONTRIBUTORS
+
+categories:
+  - title: 'API and Core'
     labels:
-      - skip-changelog
-  categories:
-    - title: API and Core
-      labels:
-        - area:api
-    - title: Operations Control Panel
-      labels:
-        - area:ops-panel
-    - title: Telemetry and Reliability
-      labels:
-        - area:telemetry
-    - title: Infrastructure and CI
-      labels:
-        - area:infra
+      - 'area:api'
+  - title: 'Operations Control Panel'
+    labels:
+      - 'area:ops-panel'
+  - title: 'Telemetry and Reliability'
+    labels:
+      - 'area:telemetry'
+  - title: 'Infrastructure and CI'
+    labels:
+      - 'area:infra'
+
+exclude-labels:
+  - 'skip-changelog'
