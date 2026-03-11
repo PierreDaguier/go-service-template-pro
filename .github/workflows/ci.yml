@@ -20,7 +20,7 @@ jobs:
         run: go mod download
       - name: Check gofmt
         run: |
-          fmt_files=$(gofmt -l $(find cmd internal -name '*.go'))
+          fmt_files="$(find cmd internal -name '*.go' -print0 | xargs -0 -r gofmt -l)"
           if [ -n "$fmt_files" ]; then
             echo "$fmt_files"
             exit 1
@@ -37,7 +37,6 @@ jobs:
           version: v2.6.2
 
   frontend-lint-build:
-    if: ${{ hashFiles('web/package.json') != '' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -58,7 +57,6 @@ jobs:
         run: npm run build
 
   docker-build:
-    if: ${{ hashFiles('Dockerfile') != '' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
