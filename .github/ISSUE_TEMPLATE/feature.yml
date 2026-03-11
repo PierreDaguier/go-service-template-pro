@@ -1,0 +1,27 @@
+name: Feature Request
+about: Propose a feature for the service template
+labels: ["type:feature"]
+body:
+  - type: textarea
+    id: business-context
+    attributes:
+      label: Business context
+      description: Why this feature improves client confidence or delivery reliability.
+    validations:
+      required: true
+
+  - type: textarea
+    id: technical-scope
+    attributes:
+      label: Technical scope
+      description: Components impacted (API, ops-panel, telemetry, infra).
+    validations:
+      required: true
+
+  - type: dropdown
+    id: risk-level
+    attributes:
+      label: Risk level
+      options: [low, medium, high]
+    validations:
+      required: true

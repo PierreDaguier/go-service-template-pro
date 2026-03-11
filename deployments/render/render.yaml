@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: go-service-template-pro-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /health/ready
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: SERVICE_VERSION
+        value: 1.0.0
+      - key: AUTH_API_KEYS
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: go-service-template-pro-db
+          property: connectionString
+
+databases:
+  - name: go-service-template-pro-db
+    plan: starter

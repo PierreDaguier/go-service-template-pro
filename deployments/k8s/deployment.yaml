@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-service-template-pro
+  namespace: go-service-template-pro
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: go-service-template-pro
+  template:
+    metadata:
+      labels:
+        app: go-service-template-pro
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/your-org/go-service-template-pro:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: APP_ENV
+              value: production
+            - name: HTTP_PORT
+              value: "8080"
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080

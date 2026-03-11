@@ -1,0 +1,33 @@
+name: Bug Report
+about: Report a reliability or UX issue
+labels: ["type:bug"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Bug summary
+      description: What failed and observed impact.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Concrete steps and expected behavior.
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: local / staging / production
+
+  - type: dropdown
+    id: risk-level
+    attributes:
+      label: Risk level
+      options: [low, medium, high]
+    validations:
+      required: true
