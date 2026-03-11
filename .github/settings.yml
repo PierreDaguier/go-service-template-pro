@@ -16,27 +16,35 @@ branches:
         contexts:
           - backend-lint-test-build
           - frontend-lint-build
+          - docker-build
       enforce_admins: true
+      required_linear_history: true
       restrictions: null
 
 labels:
-  - name: type:feature
+  - name: type/feature
     color: 0E8A16
-  - name: type:bug
+  - name: type/bug
     color: D73A4A
-  - name: type:docs
+  - name: type/docs
     color: 1D76DB
-  - name: type:ci
+  - name: type/ci
     color: 5319E7
-  - name: type:refactor
+  - name: type/refactor
     color: FBCA04
-  - name: area:api
+  - name: priority/p0
+    color: B60205
+  - name: priority/p1
+    color: D93F0B
+  - name: priority/p2
+    color: FBCA04
+  - name: area/api
     color: 0E8A16
-  - name: area:ops-panel
+  - name: area/ops-panel
     color: 0052CC
-  - name: area:telemetry
+  - name: area/telemetry
     color: 5319E7
-  - name: area:infra
+  - name: area/infra
     color: F9D0C4
   - name: risk:low
     color: C2E0C6
