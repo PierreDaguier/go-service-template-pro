@@ -158,7 +158,7 @@ func (h *OpsHandler) internalError(w http.ResponseWriter, r *http.Request, err e
 }
 
 func decodeStrict(body io.ReadCloser, target any) error {
-	defer body.Close()
+	defer func() { _ = body.Close() }()
 	decoder := json.NewDecoder(body)
 	decoder.DisallowUnknownFields()
 	if err := decoder.Decode(target); err != nil {
