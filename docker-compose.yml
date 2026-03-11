@@ -1,0 +1,114 @@
+name: go-service-template-pro
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      SERVICE_NAME: go-service-template-pro
+      APP_ENV: local
+      SERVICE_VERSION: 1.0.0
+      HTTP_PORT: 8080
+      DATABASE_URL: postgres://app:app@postgres:5432/go_service_template_pro?sslmode=disable
+      AUTH_API_KEYS: client-demo-key-2026
+      JWT_SECRET: super-secret-for-demo-only
+      JWT_ISSUER: go-service-template-pro
+      JWT_AUDIENCE: ops-clients
+      RATE_LIMIT_RPS: 15
+      RATE_LIMIT_BURST: 30
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4317
+      OTEL_EXPORTER_OTLP_INSECURE: "true"
+      LOG_LEVEL: info
+      ALLOWED_ORIGINS: http://localhost:3000,http://localhost:5173
+      SEED_DEMO_DATA: "true"
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+
+  ops-panel:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+
+  postgres:
+    image: postgres:18.3
+    environment:
+      POSTGRES_DB: go_service_template_pro
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d go_service_template_pro"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.147.0
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./monitoring/otel-collector/config.yaml:/etc/otelcol/config.yaml:ro
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+
+  prometheus:
+    image: prom/prometheus:v3.10.0
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus"]
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+
+  loki:
+    image: grafana/loki:3.6.7
+    command: ["-config.file=/etc/loki/loki-config.yaml"]
+    volumes:
+      - ./monitoring/loki/loki-config.yaml:/etc/loki/loki-config.yaml:ro
+    ports:
+      - "3100:3100"
+
+  tempo:
+    image: grafana/tempo:2.10.1
+    command: ["-config.file=/etc/tempo/tempo.yml"]
+    volumes:
+      - ./monitoring/tempo/tempo.yml:/etc/tempo/tempo.yml:ro
+      - tempo-data:/tmp/tempo
+    ports:
+      - "3200:3200"
+
+  grafana:
+    image: grafana/grafana:12.4.1
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+      - tempo
+      - loki
+
+volumes:
+  pg-data:
+  prometheus-data:
+  grafana-data:
+  tempo-data:

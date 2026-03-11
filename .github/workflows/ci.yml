@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+jobs:
+  backend-lint-test-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.26.x'
+          cache: true
+      - name: Download modules
+        run: go mod download
+      - name: Check gofmt
+        run: |
+          fmt_files="$(find cmd internal -name '*.go' -print0 | xargs -0 -r gofmt -l)"
+          if [ -n "$fmt_files" ]; then
+            echo "$fmt_files"
+            exit 1
+          fi
+      - name: Vet
+        run: go vet ./...
+      - name: Test
+        run: go test ./...
+      - name: Build
+        run: go build ./cmd/service
+      - name: Install GolangCI-Lint (Go 1.26 build)
+        run: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.6.2
+      - name: GolangCI-Lint
+        run: "$(go env GOPATH)/bin/golangci-lint" run ./...
+
+  frontend-lint-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v5
+      - name: Detect frontend files
+        id: frontend
+        working-directory: .
+        run: |
+          if [ -f web/package.json ] && [ -f web/package-lock.json ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Setup Node
+        if: ${{ steps.frontend.outputs.present == 'true' }}
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24.x'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Install dependencies
+        if: ${{ steps.frontend.outputs.present == 'true' }}
+        run: npm ci
+      - name: Lint
+        if: ${{ steps.frontend.outputs.present == 'true' }}
+        run: npm run lint
+      - name: Build
+        if: ${{ steps.frontend.outputs.present == 'true' }}
+        run: npm run build
+      - name: Skip frontend checks (no web app)
+        if: ${{ steps.frontend.outputs.present != 'true' }}
+        working-directory: .
+        run: echo "No web/package.json + package-lock.json found. Frontend checks skipped."
+
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Detect docker contexts
+        id: docker
+        run: |
+          if [ -f Dockerfile ]; then
+            echo "backend=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "backend=false" >> "$GITHUB_OUTPUT"
+          fi
+          if [ -f web/Dockerfile ]; then
+            echo "frontend=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "frontend=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Build backend image
+        if: ${{ steps.docker.outputs.backend == 'true' }}
+        run: docker build -t go-service-template-pro:ci .
+      - name: Build frontend image
+        if: ${{ steps.docker.outputs.frontend == 'true' }}
+        run: docker build -t go-service-template-pro-ui:ci ./web
+      - name: Skip docker builds (no Docker contexts)
+        if: ${{ steps.docker.outputs.backend != 'true' && steps.docker.outputs.frontend != 'true' }}
+        run: echo "No Dockerfile context found. Docker build skipped."
