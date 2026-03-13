@@ -83,11 +83,20 @@ Tradeoff: two observability paths to keep vendor neutrality and avoid lock-in.
 
 ## Dashboard screenshots
 
-- [Service Overview](assets/screenshots/overview.png)
-- [Live Metrics](assets/screenshots/live-metrics.png)
-- [Error Explorer](assets/screenshots/error-explorer.png)
-- [Trace Explorer](assets/screenshots/trace-explorer.png)
-- [Config & Environment](assets/screenshots/config-status.png)
+### Service Overview
+![Service Overview](assets/screenshots/overview.png)
+
+### Live Metrics
+![Live Metrics](assets/screenshots/live-metrics.png)
+
+### Error Explorer
+![Error Explorer](assets/screenshots/error-explorer.png)
+
+### Trace Explorer
+![Trace Explorer](assets/screenshots/trace-explorer.png)
+
+### Config & Environment
+![Config and Environment](assets/screenshots/config-status.png)
 
 ## Release targets
 
